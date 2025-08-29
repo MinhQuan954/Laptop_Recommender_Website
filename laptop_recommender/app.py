@@ -51,7 +51,8 @@ def create_app():
             query = query.filter(db.func.lower(Laptop.name).like(like))
 
         items = query.order_by(Laptop.price.asc()).all()
-        return render_template("laptops.html", items=items)
+        brands = db.session.query(Laptop.brand).distinct().all()
+        return render_template("laptops.html", items=items, brands=[b[0] for b in brands])
 
     @app.route("/laptop/<int:laptop_id>")
     def laptop_detail(laptop_id):

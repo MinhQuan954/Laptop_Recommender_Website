@@ -3,90 +3,204 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Laptop Recommender</title>
+  <title>{% block title %}Laptop Recommender{% endblock %}</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Custom CSS -->
   <link href="{{ url_for('static', filename='css/theme.css') }}" rel="stylesheet">
+  
+  <!-- Meta tags for better SEO and social sharing -->
+  <meta name="description" content="Hệ thống gợi ý laptop thông minh - Tìm laptop phù hợp với nhu cầu và ngân sách của bạn">
+  <meta name="keywords" content="laptop, gợi ý, so sánh, mua laptop, laptop gaming, laptop văn phòng">
+  <meta name="author" content="Laptop Recommender">
+  
+  <!-- Open Graph tags -->
+  <meta property="og:title" content="Laptop Recommender">
+  <meta property="og:description" content="Hệ thống gợi ý laptop thông minh">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="{{ request.url }}">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 <body class="app-gradient">
-<nav class="navbar navbar-expand-lg app-navbar border-bottom mb-3">
+<!-- Navbar với scroll effect -->
+<nav class="navbar navbar-expand-lg app-navbar border-bottom mb-3" id="mainNavbar">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">Laptop Recommender</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+    <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+      <span class="text-gradient">💻</span> Laptop Recommender
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav" aria-controls="nav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+    
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('laptops') }}">Danh sách</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('compare') }}">So sánh</a></li>
+        <li class="nav-item">
+          <a class="nav-link {{ 'active' if request.endpoint == 'laptops' }}" href="{{ url_for('laptops') }}">
+            <span class="nav-icon">📱</span> Danh sách
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {{ 'active' if request.endpoint == 'compare' }}" href="{{ url_for('compare') }}">
+            <span class="nav-icon">⚖️</span> So sánh
+          </a>
+        </li>
+        {% if current_user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link {{ 'active' if request.endpoint == 'favorites' }}" href="{{ url_for('favorites') }}">
+            <span class="nav-icon">❤️</span> Yêu thích
+          </a>
+        </li>
+        {% endif %}
       </ul>
-      <form class="d-flex position-relative" role="search" action="{{ url_for('laptops') }}" autocomplete="off">
-        <input class="form-control me-2" id="navbarSearch" type="search" placeholder="Tìm laptop..." name="q">
-        <button class="btn btn-outline-primary" type="submit">Tìm</button>
+      
+      <!-- Search form với animation -->
+      <form class="d-flex position-relative search-form" role="search" action="{{ url_for('laptops') }}" autocomplete="off">
+        <div class="input-group">
+          <input class="form-control search-input" id="navbarSearch" type="search" placeholder="🔍 Tìm laptop..." name="q" aria-label="Tìm kiếm laptop">
+          <button class="btn btn-outline-primary search-btn" type="submit" aria-label="Tìm kiếm">
+            <span class="search-text">Tìm</span>
+            <span class="search-icon">🔍</span>
+          </button>
+        </div>
+        <div id="searchSuggest" class="position-fixed search-suggest-container" style="display:none;"></div>
       </form>
-      <div id="searchSuggest" class="position-fixed search-suggest-container" style="display:none;"></div>
+      
+      <!-- User menu -->
       <ul class="navbar-nav ms-3">
         {% if current_user.is_authenticated %}
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-            {{ current_user.username }}
+          <a class="nav-link dropdown-toggle d-flex align-items-center user-menu" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="user-avatar">👤</span>
+            <span class="user-name">{{ current_user.username }}</span>
           </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{ url_for('profile') }}">Hồ sơ</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('favorites') }}">Yêu thích</a></li>
+          <ul class="dropdown-menu dropdown-menu-end animate-fade-in">
+            <li><a class="dropdown-item" href="{{ url_for('profile') }}">👤 Hồ sơ</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('favorites') }}">❤️ Yêu thích</a></li>
             {% if current_user.role == 'admin' %}
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">Quản trị</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">⚙️ Quản trị</a></li>
             {% endif %}
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Đăng xuất</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('logout') }}">🚪 Đăng xuất</a></li>
           </ul>
         </li>
         {% else %}
         <li class="nav-item">
-          <a class="nav-link btn btn-outline-primary btn-sm me-2" href="{{ url_for('login') }}">Đăng nhập</a>
+          <a class="nav-link btn btn-outline-primary btn-sm me-2" href="{{ url_for('login') }}">
+            <span class="btn-icon">🔑</span> Đăng nhập
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link btn btn-primary btn-sm" href="{{ url_for('register') }}">Đăng ký</a>
+          <a class="nav-link btn btn-primary btn-sm" href="{{ url_for('register') }}">
+            <span class="btn-icon">📝</span> Đăng ký
+          </a>
         </li>
         {% endif %}
       </ul>
     </div>
   </div>
 </nav>
+
+<!-- Main content container -->
 <div class="container container-narrow">
+  <!-- Flash messages với animation -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      {% endfor %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show animate-fade-in-up" role="alert">
+            <div class="d-flex align-items-center">
+              <span class="alert-icon me-2">
+                {% if category == 'success' %}✅
+                {% elif category == 'danger' %}❌
+                {% elif category == 'warning' %}⚠️
+                {% else %}ℹ️
+                {% endif %}
+              </span>
+              <span>{{ message }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
     {% endif %}
   {% endwith %}
-  {% block content %}{% endblock %}
+  
+  <!-- Main content -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
 </div>
+
+<!-- Footer -->
+<footer class="footer mt-5 py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h6 class="text-gradient fw-bold mb-3">Laptop Recommender</h6>
+        <p class="text-muted mb-0">Hệ thống gợi ý laptop thông minh giúp bạn tìm được sản phẩm phù hợp nhất.</p>
+      </div>
+              <div class="col-md-6 text-md-end">
+          <p class="text-muted mb-0">
+           2025 Laptop Recommender. Được phát triển với ❤️
+          </p>
+          <p class="text-muted mb-0">
+           Web được xây dựng với mục đích học tập ❤️
+          </p>
+        </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to top button -->
+<button id="backToTop" class="back-to-top" aria-label="Lên đầu trang">
+  <span>↑</span>
+</button>
+
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JavaScript -->
 <script>
-// Xóa cache khi chuyển trang
-window.addEventListener('beforeunload', function() {
-    // Xóa localStorage nếu cần
-    if (typeof(Storage) !== "undefined") {
-        // Có thể thêm logic xóa cache cụ thể ở đây
-        console.log('Clearing cache before navigation...');
-    }
+// Navbar scroll effect
+window.addEventListener('scroll', function() {
+  const navbar = document.getElementById('mainNavbar');
+  if (window.scrollY > 50) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
 });
 
-// Xóa cache khi load trang mới
-window.addEventListener('load', function() {
-    // Đảm bảo không sử dụng cache cho API calls
-    if (typeof(Storage) !== "undefined") {
-        console.log('Page loaded, cache cleared');
-    }
+// Back to top button
+const backToTopBtn = document.getElementById('backToTop');
+
+window.addEventListener('scroll', function() {
+  if (window.scrollY > 300) {
+    backToTopBtn.classList.add('show');
+  } else {
+    backToTopBtn.classList.remove('show');
+  }
 });
-</script>
-<script>
+
+backToTopBtn.addEventListener('click', function() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
+
+// Search functionality với cải tiến
 (function(){
   const input = document.getElementById('navbarSearch');
   const container = document.getElementById('searchSuggest');
@@ -96,22 +210,29 @@ window.addEventListener('load', function() {
   let hideTimer = null;
 
   function formatPrice(v){
-    try { return new Intl.NumberFormat('vi-VN').format(v) + ' VND'; } catch(e) { return v + ' VND'; }
+    try { 
+      return new Intl.NumberFormat('vi-VN').format(v) + ' VND'; 
+    } catch(e) { 
+      return v + ' VND'; 
+    }
   }
 
-  function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function escapeRegExp(s){ 
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
+  }
+  
   function highlight(text, q){
     if (!q) return text;
     try {
       const re = new RegExp(escapeRegExp(q), 'ig');
       return text.replace(re, (m) => `<mark class="px-1 py-0">${m}</mark>`);
-    } catch(e){ return text; }
+    } catch(e){ 
+      return text; 
+    }
   }
+  
   function render(items){
-    console.log('Rendering items:', items); // Debug
-    // Tính vị trí dropdown
     const rect = input.getBoundingClientRect();
-    console.log('Input rect:', rect); // Debug
     container.style.left = rect.left + 'px';
     container.style.top = (rect.bottom + 5) + 'px';
     container.style.width = rect.width + 'px';
@@ -122,41 +243,46 @@ window.addEventListener('load', function() {
     container.style.border = '1px solid #ddd';
     container.style.borderRadius = '12px';
     container.style.overflow = 'hidden';
-    console.log('Container styles:', container.style.cssText); // Debug
     
     if (!items || items.length === 0){
       container.innerHTML = `
         <div class="card app-card mt-1">
-          <div class="p-3 text-muted">Không có sản phẩm phù hợp</div>
+          <div class="p-3 text-muted text-center">
+            <span class="search-no-results">🔍</span>
+            <div>Không có sản phẩm phù hợp</div>
+          </div>
         </div>`;
       container.style.display = 'block';
       return;
     }
+    
     const html = `
       <div class="card app-card mt-1" style="max-height: 360px; overflow:auto;">
         <div class="list-group list-group-flush">
           ${items.map(it => `
-            <a href="/laptop/${it.id}" class="list-group-item list-group-item-action d-flex align-items-center">
-              <img src="${it.image_url || '/static/images/R.webp'}" alt="${it.name}" style="width:48px;height:32px;object-fit:cover;" class="me-2 rounded border">
+            <a href="/laptop/${it.id}" class="list-group-item list-group-item-action d-flex align-items-center search-item">
+              <img src="${it.image_url || '/static/images/R.webp'}" alt="${it.name}" 
+                   style="width:48px;height:32px;object-fit:cover;" class="me-2 rounded border">
               <div class="flex-grow-1">
-                <div class="fw-semibold">${highlight(it.name, input.value.trim())}</div>
-                <div class="small text-muted">${formatPrice(it.price)}</div>
+                <div class="fw-semibold search-item-title">${highlight(it.name, input.value.trim())}</div>
+                <div class="small text-muted search-item-price">${formatPrice(it.price)}</div>
               </div>
+              <span class="search-item-arrow">→</span>
             </a>
           `).join('')}
         </div>
       </div>`;
     container.innerHTML = html;
     container.style.display = 'block';
-    console.log('Dropdown displayed, HTML length:', container.innerHTML.length); // Debug
   }
 
   async function fetchSuggest(q){
     if (abortCtrl) abortCtrl.abort();
     abortCtrl = new AbortController();
-    // Thêm timestamp để tránh cache
+    
     const timestamp = new Date().getTime();
     const url = `/api/search_suggest?q=${encodeURIComponent(q)}&limit=3&_t=${timestamp}`;
+    
     try {
       const res = await fetch(url, { 
         signal: abortCtrl.signal,
@@ -167,10 +293,9 @@ window.addEventListener('load', function() {
         }
       });
       const data = await res.json();
-      console.log('Search results:', data.items); // Debug
       render(data.items || []);
     } catch(e){ 
-      console.error('Search error:', e); // Debug
+      console.error('Search error:', e);
     }
   }
 
@@ -178,7 +303,7 @@ window.addEventListener('load', function() {
   input.addEventListener('input', function(){
     const q = this.value.trim();
     clearTimeout(debounce);
-    console.log('Input value:', q); // Debug
+    
     if (q.length < 2){
       container.style.display = 'none';
       container.innerHTML = '';
@@ -200,30 +325,242 @@ window.addEventListener('load', function() {
     if (hideTimer) clearTimeout(hideTimer);
   });
 
-  // Ngăn chặn việc ẩn khi click vào container
   container.addEventListener('click', function(e){
     e.stopPropagation();
   });
 
-  // Đảm bảo container luôn hiển thị trên cùng khi scroll
-  window.addEventListener('scroll', function(){
-    if (container.style.display === 'block') {
-      const rect = input.getBoundingClientRect();
-      container.style.left = rect.left + 'px';
-      container.style.top = (rect.bottom + 5) + 'px';
-    }
-  });
-
-  // Đảm bảo container luôn hiển thị trên cùng khi resize
-  window.addEventListener('resize', function(){
+  // Responsive search suggest positioning
+  function updateSearchPosition() {
     if (container.style.display === 'block') {
       const rect = input.getBoundingClientRect();
       container.style.left = rect.left + 'px';
       container.style.top = (rect.bottom + 5) + 'px';
       container.style.width = rect.width + 'px';
     }
-  });
+  }
+
+  window.addEventListener('scroll', updateSearchPosition);
+  window.addEventListener('resize', updateSearchPosition);
 })();
+
+// Smooth animations cho các elements
+document.addEventListener('DOMContentLoaded', function() {
+  // Animate elements khi load trang
+  const animateElements = document.querySelectorAll('.animate-fade-in-up, .animate-fade-in, .animate-slide-in-right');
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, {
+    threshold: 0.1
+  });
+  
+  animateElements.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+});
+
+// Cache management
+window.addEventListener('beforeunload', function() {
+  if (typeof(Storage) !== "undefined") {
+    console.log('Clearing cache before navigation...');
+  }
+});
+
+window.addEventListener('load', function() {
+  if (typeof(Storage) !== "undefined") {
+    console.log('Page loaded, cache cleared');
+  }
+});
 </script>
+
+<!-- Additional CSS for new features -->
+<style>
+/* Navbar improvements */
+.nav-icon {
+  margin-right: 0.5rem;
+  font-size: 1.1em;
+}
+
+.user-avatar {
+  margin-right: 0.5rem;
+  font-size: 1.2em;
+}
+
+.user-name {
+  font-weight: 600;
+}
+
+/* Search form improvements */
+.search-form {
+  position: relative;
+}
+
+.search-input {
+  border-radius: 25px 0 0 25px;
+  border-right: none;
+  padding-left: 1rem;
+}
+
+.search-btn {
+  border-radius: 0 25px 25px 0;
+  border-left: none;
+  padding: 0.75rem 1.25rem;
+}
+
+.search-text {
+  display: inline;
+}
+
+.search-icon {
+  display: none;
+}
+
+@media (max-width: 576px) {
+  .search-text {
+    display: none;
+  }
+  .search-icon {
+    display: inline;
+  }
+}
+
+/* Search suggest improvements */
+.search-item {
+  transition: all 0.2s ease;
+}
+
+.search-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(240, 147, 251, 0.05) 100%);
+  transform: translateX(4px);
+}
+
+.search-item-title {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.search-item-price {
+  color: var(--primary-600);
+  font-weight: 500;
+}
+
+.search-item-arrow {
+  color: var(--text-muted);
+  font-weight: bold;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.search-item:hover .search-item-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.search-no-results {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Alert improvements */
+.alert-icon {
+  font-size: 1.2em;
+}
+
+.flash-messages {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 9999;
+  max-width: 400px;
+}
+
+/* Back to top button */
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.back-to-top:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Footer */
+.footer {
+  background: var(--gradient-card);
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+/* Dropdown improvements */
+.dropdown-menu {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 0.5rem;
+}
+
+.dropdown-item {
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(240, 147, 251, 0.05) 100%);
+  transform: translateX(4px);
+}
+
+/* Button improvements */
+.btn-icon {
+  margin-right: 0.5rem;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .flash-messages {
+    position: static;
+    max-width: 100%;
+  }
+  
+  .back-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+  }
+}
+</style>
+
+{% block scripts %}{% endblock %}
 </body>
 </html>

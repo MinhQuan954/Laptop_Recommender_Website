@@ -1,202 +1,456 @@
 {% extends "base.html" %}
 
+{% block title %}Trang chủ - Laptop Recommender{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center mb-4">Hệ Thống Gợi Ý Laptop Thông Minh</h1>
+<!-- Hero Section -->
+<section class="hero-section text-center py-5 mb-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <h1 class="hero-title mb-4 animate-fade-in-up">
+          Tìm Laptop Hoàn Hảo Cho Bạn
+        </h1>
+        <p class="hero-subtitle mb-5 animate-fade-in-up">
+          Hệ thống gợi ý thông minh giúp bạn chọn laptop phù hợp với nhu cầu và ngân sách
+        </p>
+        
+        <!-- Quick Search Form -->
+        <div class="hero-search animate-fade-in-up">
+          <form action="{{ url_for('recommend') }}" method="GET" class="row g-3 justify-content-center">
+            <div class="col-md-4">
+              <select class="form-select form-select-lg" id="need" name="need" required>
+                <option value="">🎯 Chọn nhu cầu...</option>
+                <option value="gaming">🎮 Gaming (Chơi game)</option>
+                <option value="design">🎨 Design (Thiết kế đồ họa)</option>
+                <option value="dev">💻 Development (Lập trình)</option>
+                <option value="student">📚 Student (Sinh viên)</option>
+                <option value="office">🏢 Office (Văn phòng)</option>
+              </select>
+            </div>
+            
+            <div class="col-md-4">
+              <input type="number" class="form-control form-control-lg" id="budget" name="budget" 
+                     placeholder="💰 Ngân sách (VND)" min="5000000" max="100000000">
+            </div>
+            
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary btn-lg w-100">
+                <span class="btn-icon">🔍</span> Tìm kiếm
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Brand Filter Section -->
+<section class="brand-section mb-5 animate-fade-in-up">
+  <div class="container">
+    <h3 class="section-title text-center mb-4">Lọc theo thương hiệu</h3>
+    <div class="brand-grid">
+      {% for brand in brands %}
+      <a href="{{ url_for('laptops', brand=brand) }}" class="brand-card">
+        <span class="brand-name">{{ brand }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section mb-5">
+  <div class="container">
+    <h3 class="section-title text-center mb-5">Tại sao chọn chúng tôi?</h3>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="feature-card text-center">
+          <div class="feature-icon mb-3">🤖</div>
+          <h5>Gợi ý thông minh</h5>
+          <p class="text-muted">Thuật toán AI phân tích nhu cầu và đưa ra gợi ý chính xác</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card text-center">
+          <div class="feature-icon mb-3">⚖️</div>
+          <h5>So sánh chi tiết</h5>
+          <p class="text-muted">So sánh đa chiều giúp bạn đưa ra quyết định tốt nhất</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card text-center">
+          <div class="feature-icon mb-3">📊</div>
+          <h5>Dữ liệu cập nhật</h5>
+          <p class="text-muted">Thông tin sản phẩm và giá cả được cập nhật thường xuyên</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Category Guide Section -->
+<section class="category-guide mb-5">
+  <div class="container">
+    <h3 class="section-title text-center mb-5">Hướng dẫn chọn laptop theo nhu cầu</h3>
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="category-card">
+          <div class="category-header">
+            <div class="category-icon">🎮</div>
+            <h5>Gaming</h5>
+          </div>
+          <div class="category-body">
+            <ul class="category-specs">
+              <li><strong>RAM:</strong> ≥ 16GB</li>
+              <li><strong>CPU:</strong> H/HX/HK series</li>
+              <li><strong>GPU:</strong> Rời (RTX/GTX/RX)</li>
+              <li><strong>Giá:</strong> ≥ 15 triệu</li>
+            </ul>
+            <div class="category-tags">
+              <span class="badge bg-primary">Hiệu năng cao</span>
+              <span class="badge bg-success">Đồ họa mạnh</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 col-md-6">
+        <div class="category-card">
+          <div class="category-header">
+            <div class="category-icon">🎨</div>
+            <h5>Design</h5>
+          </div>
+          <div class="category-body">
+            <ul class="category-specs">
+              <li><strong>RAM:</strong> ≥ 16GB</li>
+              <li><strong>CPU:</strong> H/HX/HK/P series</li>
+              <li><strong>GPU:</strong> Rời</li>
+              <li><strong>Màn hình:</strong> Chất lượng cao</li>
+              <li><strong>Giá:</strong> ≥ 20 triệu</li>
+            </ul>
+            <div class="category-tags">
+              <span class="badge bg-primary">Màn hình đẹp</span>
+              <span class="badge bg-info">Màu sắc chính xác</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 col-md-6">
+        <div class="category-card">
+          <div class="category-header">
+            <div class="category-icon">💻</div>
+            <h5>Development</h5>
+          </div>
+          <div class="category-body">
+            <ul class="category-specs">
+              <li><strong>RAM:</strong> ≥ 16GB</li>
+              <li><strong>CPU:</strong> Linh hoạt</li>
+              <li><strong>Storage:</strong> SSD ưu tiên</li>
+              <li><strong>Giá:</strong> ≥ 12 triệu</li>
+            </ul>
+            <div class="category-tags">
+              <span class="badge bg-primary">Đa nhiệm tốt</span>
+              <span class="badge bg-warning">Tốc độ cao</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 col-md-6">
+        <div class="category-card">
+          <div class="category-header">
+            <div class="category-icon">📚</div>
+            <h5>Student</h5>
+          </div>
+          <div class="category-body">
+            <ul class="category-specs">
+              <li><strong>RAM:</strong> ≥ 8GB</li>
+              <li><strong>CPU:</strong> U/P/H series</li>
+              <li><strong>Ưu tiên:</strong> Giá cả</li>
+              <li><strong>Giá:</strong> ≥ 8 triệu</li>
+            </ul>
+            <div class="category-tags">
+              <span class="badge bg-success">Giá tốt</span>
+              <span class="badge bg-info">Tiết kiệm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4 col-md-6">
+        <div class="category-card">
+          <div class="category-header">
+            <div class="category-icon">🏢</div>
+            <h5>Office</h5>
+          </div>
+          <div class="category-body">
+            <ul class="category-specs">
+              <li><strong>RAM:</strong> ≥ 8GB</li>
+              <li><strong>CPU:</strong> U/P series</li>
+              <li><strong>Ưu tiên:</strong> Tiết kiệm điện</li>
+              <li><strong>Giá:</strong> ≥ 6 triệu</li>
+            </ul>
+            <div class="category-tags">
+              <span class="badge bg-success">Pin lâu</span>
+              <span class="badge bg-secondary">Nhẹ gọn</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Products Section -->
+<section class="products-section">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="section-title mb-0">Khám phá laptop</h3>
+      <a href="{{ url_for('laptops') }}" class="btn btn-outline-primary">
+        <span class="btn-icon">📱</span> Xem tất cả
+      </a>
+    </div>
     
-    <!-- Gợi ý nhanh theo thương hiệu -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <h3>Lọc theo thương hiệu</h3>
-            <div class="d-flex flex-wrap gap-2">
-                {% for brand in brands %}
-                <a href="{{ url_for('laptops', brand=brand) }}" class="btn btn-outline-primary">{{ brand }}</a>
-                {% endfor %}
-            </div>
-        </div>
+    <div id="productsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <!-- Sản phẩm sẽ được load ở đây -->
     </div>
+    
+    <div class="text-center mt-5" id="loadMoreContainer" style="display: none;">
+      <button class="btn btn-primary btn-lg" id="loadMoreBtn" onclick="loadMoreProducts()">
+        <span id="loadMoreText">Xem thêm</span>
+        <span id="loadMoreSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+      </button>
+    </div>
+  </div>
+</section>
 
-    <!-- Gợi ý chi tiết theo nhu cầu -->
-    <div class="row">
-        <div class="col-12">
-            <h3>Gợi ý chi tiết theo nhu cầu</h3>
-            <div class="card app-card">
-                <div class="card-body">
-                    <form action="{{ url_for('recommend') }}" method="GET" class="row g-3">
-                        <div class="col-md-4">
-                            <label for="need" class="form-label">Nhu cầu sử dụng</label>
-                            <select class="form-select" id="need" name="need" required>
-                                <option value="">Chọn nhu cầu...</option>
-                                <option value="gaming">Gaming (Chơi game)</option>
-                                <option value="design">Design (Thiết kế đồ họa)</option>
-                                <option value="dev">Development (Lập trình)</option>
-                                <option value="student">Student (Sinh viên)</option>
-                                <option value="office">Office (Văn phòng)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <label for="budget" class="form-label">Ngân sách (VND)</label>
-                            <input type="number" class="form-control" id="budget" name="budget" 
-                                   placeholder="VD: 20000000" min="5000000" max="100000000">
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <label for="priority" class="form-label">Ưu tiên</label>
-                            <select class="form-select" id="priority" name="priority">
-                                <option value="balanced">Cân bằng</option>
-                                <option value="performance">Hiệu năng cao</option>
-                                <option value="budget">Tiết kiệm chi phí</option>
-                            </select>
-                        </div>
-                        
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary">Tìm kiếm gợi ý</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<!-- Compare Modal -->
+<div class="modal fade" id="compareModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chọn laptop để so sánh</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="selectedLaptops" class="mb-3">
+          <h6>Laptop đã chọn:</h6>
+          <div id="selectedList" class="d-flex flex-wrap gap-2"></div>
         </div>
-    </div>
-
-    <!-- Thông tin chi tiết về tiêu chí -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <h4>Tiêu chí gợi ý theo từng nhu cầu:</h4>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 app-card">
-                        <div class="card-header app-card-header">
-                            <h5 class="mb-0">Gaming</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled">
-                                <li>• RAM: ≥ 16GB</li>
-                                <li>• CPU: H/HX/HK series</li>
-                                <li>• GPU: Rời (RTX/GTX/RX)</li>
-                                <li>• Giá: ≥ 15 triệu</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 app-card">
-                        <div class="card-header app-card-header">
-                            <h5 class="mb-0">Design</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled">
-                                <li>• RAM: ≥ 16GB</li>
-                                <li>• CPU: H/HX/HK/P series</li>
-                                <li>• GPU: Rời</li>
-                                <li>• Màn hình: Chất lượng cao</li>
-                                <li>• Giá: ≥ 20 triệu</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 app-card">
-                        <div class="card-header app-card-header">
-                            <h5 class="mb-0">Development</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled">
-                                <li>• RAM: ≥ 16GB</li>
-                                <li>• CPU: Linh hoạt</li>
-                                <li>• Storage: SSD ưu tiên</li>
-                                <li>• Giá: ≥ 12 triệu</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 app-card">
-                        <div class="card-header app-card-header">
-                            <h5 class="mb-0">Student</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled">
-                                <li>• RAM: ≥ 8GB</li>
-                                <li>• CPU: U/P/H series</li>
-                                <li>• Ưu tiên giá cả</li>
-                                <li>• Giá: ≥ 8 triệu</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 app-card">
-                        <div class="card-header app-card-header">
-                            <h5 class="mb-0">Office</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-unstyled">
-                                <li>• RAM: ≥ 8GB</li>
-                                <li>• CPU: U/P series</li>
-                                <li>• Tiết kiệm điện</li>
-                                <li>• Giá: ≥ 6 triệu</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="alert alert-info">
+          <small>Chọn ít nhất 2 laptop để so sánh (tối đa 4 laptop)</small>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-primary" id="compareBtn" disabled>So sánh</button>
+      </div>
     </div>
-
-    <!-- Phần hiển thị sản phẩm -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <h3 class="text-center mb-4">Khám phá laptop</h3>
-            <div id="productsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-                <!-- Sản phẩm sẽ được load ở đây -->
-            </div>
-            <div class="text-center mt-4" id="loadMoreContainer" style="display: none;">
-                <button class="btn btn-primary btn-lg" id="loadMoreBtn" onclick="loadMoreProducts()">
-                    <span id="loadMoreText">Xem thêm</span>
-                    <span id="loadMoreSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal chọn laptop so sánh -->
-    <div class="modal fade" id="compareModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Chọn laptop để so sánh</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="selectedLaptops" class="mb-3">
-                        <h6>Laptop đã chọn:</h6>
-                        <div id="selectedList" class="d-flex flex-wrap gap-2"></div>
-                    </div>
-                    <div class="alert alert-info">
-                        <small>Chọn ít nhất 2 laptop để so sánh (tối đa 4 laptop)</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" id="compareBtn" disabled>So sánh</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating compare button -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1000;">
-        <button class="compare-fab" id="showCompareBtn" style="display: none;">
-            <span>So sánh</span>
-            <span class="compare-count" id="compareCount">0</span>
-        </button>
-    </div>
+  </div>
 </div>
+
+<!-- Floating compare button -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1000;">
+  <button class="compare-fab" id="showCompareBtn" style="display: none;">
+    <span>So sánh</span>
+    <span class="compare-count" id="compareCount">0</span>
+  </button>
+</div>
+
+<!-- Custom CSS for this page -->
+<style>
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 147, 251, 0.1) 100%);
+  border-radius: 30px;
+  margin: 0 -1rem;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 900;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.hero-search {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Brand Section */
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.brand-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  text-decoration: none;
+  color: var(--text-strong);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.brand-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-500);
+  color: var(--primary-600);
+}
+
+.brand-name {
+  font-weight: 600;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+/* Features Section */
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+}
+
+.feature-icon {
+  font-size: 3rem;
+}
+
+/* Category Guide */
+.category-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.category-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+}
+
+.category-header {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.category-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.category-body {
+  padding: 1.5rem;
+}
+
+.category-specs {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.category-specs li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.category-specs li:last-child {
+  border-bottom: none;
+}
+
+.category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Products Section */
+.products-section {
+  padding: 2rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .hero-search {
+    padding: 1.5rem;
+  }
+  
+  .brand-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .brand-card {
+    padding: 1rem;
+  }
+  
+  .brand-icon {
+    font-size: 1.5rem;
+  }
+  
+  .feature-card,
+  .category-card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section {
+    margin: 0 -0.5rem;
+    border-radius: 20px;
+  }
+  
+  .hero-search {
+    padding: 1rem;
+  }
+  
+  .brand-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+</style>
 
 <script>
 // Hiển thị thông tin chi tiết khi chọn nhu cầu
@@ -214,7 +468,7 @@ document.getElementById('need').addEventListener('change', function() {
     };
     
     if (need && budgetSuggestions[need]) {
-        budgetInput.placeholder = `Gợi ý: ${budgetSuggestions[need].toLocaleString('vi-VN')} VND`;
+        budgetInput.placeholder = `💰 Gợi ý: ${budgetSuggestions[need].toLocaleString('vi-VN')} VND`;
     }
 });
 
@@ -231,37 +485,64 @@ function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
 }
 
-// Tạo HTML cho sản phẩm
+// Tạo HTML cho sản phẩm với thiết kế mới
 function createProductCard(product) {
     return `
         <div class="col">
             <div class="card h-100 app-card product-card" data-product-id="${product.id}" style="cursor: pointer;">
-                <img src="${product.image_url || 'https://via.placeholder.com/400x250?text=Laptop'}" 
-                     class="card-img-top" alt="${product.name}">
+                <div class="product-image-container">
+                    <img src="${product.image_url || 'https://via.placeholder.com/400x250?text=Laptop'}" 
+                         class="card-img-top" alt="${product.name}">
+                    <div class="product-overlay">
+                        <div class="product-actions">
+                            <button class="btn btn-sm btn-light compare-btn" 
+                                    data-laptop-id="${product.id}" 
+                                    data-laptop-name="${product.name}">
+                                <span class="btn-icon">⚖️</span> So sánh
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="card-body d-flex flex-column">
-                    <h6 class="card-title">${product.name}</h6>
+                    <div class="product-category mb-2">
+                        <span class="badge bg-primary">${product.category}</span>
+                    </div>
+                    <h6 class="card-title product-title">${product.name}</h6>
                     
                     <!-- Thông tin cấu hình -->
-                    <div class="small text-muted mb-2">
-                        <div><strong>Thương hiệu:</strong> ${product.brand}</div>
-                        <div><strong>CPU:</strong> ${product.cpu}</div>
-                        <div><strong>RAM:</strong> ${product.ram_gb}GB</div>
-                        ${product.gpu ? `<div><strong>GPU:</strong> ${product.gpu}</div>` : ''}
-                        <div><strong>Storage:</strong> ${product.storage}</div>
-                        <div><strong>Màn hình:</strong> ${product.screen}</div>
+                    <div class="product-specs mb-3">
+                        <div class="spec-item">
+                            <span class="spec-label">🏢 Thương hiệu:</span>
+                            <span class="spec-value">${product.brand}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">⚡ CPU:</span>
+                            <span class="spec-value">${product.cpu}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">💾 RAM:</span>
+                            <span class="spec-value">${product.ram_gb}GB</span>
+                        </div>
+                        ${product.gpu ? `
+                        <div class="spec-item">
+                            <span class="spec-label">🎮 GPU:</span>
+                            <span class="spec-value">${product.gpu}</span>
+                        </div>
+                        ` : ''}
+                        <div class="spec-item">
+                            <span class="spec-label">💿 Storage:</span>
+                            <span class="spec-value">${product.storage}</span>
+                        </div>
                     </div>
                     
                     <div class="mt-auto">
-                        <div class="fw-bold mb-2 text-primary fs-5">${formatPrice(product.price)}</div>
-                        <div class="d-flex gap-2">
-                            <a class="btn btn-sm btn-primary flex-fill" href="/laptop/${product.id}">
-                                Xem chi tiết
+                        <div class="product-price mb-3">
+                            <span class="price-amount">${formatPrice(product.price)}</span>
+                        </div>
+                        <div class="product-actions-bottom">
+                            <a class="btn btn-primary flex-fill" href="/laptop/${product.id}">
+                                <span class="btn-icon">👁️</span> Xem chi tiết
                             </a>
-                            <button class="btn btn-sm btn-outline-secondary compare-btn" 
-                                    data-laptop-id="${product.id}" 
-                                    data-laptop-name="${product.name}">
-                                Chọn so sánh
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -285,7 +566,6 @@ async function loadProducts(page = 1, append = false) {
     }
     
     try {
-        // Thêm timestamp để tránh cache
         const timestamp = new Date().getTime();
         const response = await fetch(`/api/products?page=${page}&per_page=9&_t=${timestamp}`, {
             headers: {
@@ -303,9 +583,13 @@ async function loadProducts(page = 1, append = false) {
             productsContainer.innerHTML = '';
         }
         
-        // Thêm sản phẩm vào container
-        data.products.forEach(product => {
-            productsContainer.innerHTML += createProductCard(product);
+        // Thêm sản phẩm vào container với animation
+        data.products.forEach((product, index) => {
+            const productElement = document.createElement('div');
+            productElement.innerHTML = createProductCard(product);
+            productElement.firstElementChild.style.animationDelay = `${index * 0.1}s`;
+            productElement.firstElementChild.classList.add('animate-fade-in-up');
+            productsContainer.appendChild(productElement.firstElementChild);
         });
         
         // Cập nhật trạng thái
@@ -350,16 +634,16 @@ function addCompareEventListeners() {
     // Event listeners cho nút so sánh
     document.querySelectorAll('.compare-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
-            e.stopPropagation(); // Ngăn chặn event bubbling
+            e.stopPropagation();
             const laptopId = this.dataset.laptopId;
             const laptopName = this.dataset.laptopName;
             
             if (selectedLaptops.find(l => l.id === laptopId)) {
                 // Bỏ chọn
                 selectedLaptops = selectedLaptops.filter(l => l.id !== laptopId);
-                this.textContent = 'Chọn so sánh';
+                this.innerHTML = '<span class="btn-icon">⚖️</span> So sánh';
                 this.classList.remove('btn-success');
-                this.classList.add('btn-outline-secondary');
+                this.classList.add('btn-light');
             } else {
                 // Chọn
                 if (selectedLaptops.length >= 4) {
@@ -367,8 +651,8 @@ function addCompareEventListeners() {
                     return;
                 }
                 selectedLaptops.push({id: laptopId, name: laptopName});
-                this.textContent = 'Đã chọn';
-                this.classList.remove('btn-outline-secondary');
+                this.innerHTML = '<span class="btn-icon">✅</span> Đã chọn';
+                this.classList.remove('btn-light');
                 this.classList.add('btn-success');
             }
             
@@ -379,13 +663,11 @@ function addCompareEventListeners() {
     // Event listeners cho card sản phẩm
     document.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('click', function(e) {
-            // Không chuyển hướng nếu click vào nút
             if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.closest('button') || e.target.closest('a')) {
                 return;
             }
             
             const productId = this.dataset.productId;
-            // Xóa cache trước khi chuyển trang
             if (typeof(Storage) !== "undefined") {
                 localStorage.removeItem('selectedLaptops');
                 sessionStorage.clear();
@@ -417,9 +699,8 @@ function updateCompareUI() {
     if (selectedLaptops.length > 0) {
         showCompareBtn.style.display = 'inline-flex';
         document.getElementById('compareCount').textContent = selectedLaptops.length;
-        // hiệu ứng bump
         showCompareBtn.classList.remove('bump');
-        void showCompareBtn.offsetWidth; // reflow để reset animation
+        void showCompareBtn.offsetWidth;
         showCompareBtn.classList.add('bump');
     } else {
         showCompareBtn.style.display = 'none';
@@ -445,4 +726,86 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- Additional CSS for product cards -->
+<style>
+.product-image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+.product-category {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.product-title {
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+}
+
+.product-specs {
+    font-size: 0.875rem;
+}
+
+.spec-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.spec-item:last-child {
+    border-bottom: none;
+}
+
+.spec-label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.spec-value {
+    color: var(--text-strong);
+    font-weight: 600;
+}
+
+.product-price {
+    text-align: center;
+}
+
+.price-amount {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary-600);
+}
+
+.product-actions-bottom {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.product-actions-bottom .btn {
+    flex: 1;
+}
+</style>
 {% endblock %}
