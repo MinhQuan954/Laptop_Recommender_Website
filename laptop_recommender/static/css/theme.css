@@ -1,0 +1,305 @@
+/* Theme gradient trung tính nâu nhạt */
+:root {
+  --primary-500: #b08968; /* nâu nhạt */
+  --primary-600: #9c7a5d; /* nâu trung tính đậm hơn */
+  --secondary-500: #d4a373; /* nâu cam nhạt */
+  --secondary-600: #c58f5a;
+  --surface: #ffffff;
+  --text-strong: #2b2b2b; /* chữ đậm hơn để tương phản */
+  --text-muted: #707070;
+  --border: rgba(0,0,0,0.08);
+  --bg-start: #f6f1eb; /* be rất nhạt thiên nâu */
+  --bg-end: #f1f4f2;  /* xám be nhạt, trung tính */
+}
+
+html, body {
+  height: 100%;
+}
+
+body.app-gradient {
+  background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+  min-height: 100%;
+}
+
+/******** Navbar ********/
+.navbar.app-navbar {
+  background: rgba(255,255,255,0.7) !important;
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.navbar .navbar-brand {
+  color: var(--primary-600);
+}
+
+.navbar .btn-outline-primary {
+  border-color: var(--primary-600);
+  color: var(--primary-600);
+}
+
+.navbar .btn-outline-primary:hover {
+  background: var(--primary-600);
+  color: #fff;
+}
+
+.navbar .nav-link {
+  color: var(--text-strong);
+}
+
+.navbar .nav-link.active, .navbar .nav-link:focus, .navbar .nav-link:hover {
+  color: var(--primary-600);
+}
+
+/******** Buttons ********/
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  border: none;
+}
+.btn-primary:hover {
+  filter: brightness(0.95);
+}
+
+.btn-outline-primary {
+  color: var(--primary-600);
+  border-color: var(--primary-600);
+}
+.btn-outline-primary:hover {
+  background: var(--primary-600);
+  color: #fff;
+}
+
+/******** Cards ********/
+.card.app-card {
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border-radius: 16px;
+}
+
+.card-header.app-card-header {
+  background: linear-gradient(135deg, #ffffff, #f7fbff);
+  border-bottom: 1px solid var(--border);
+}
+
+/******** Forms ********/
+.form-control:focus {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 0.2rem rgba(88,105,240,0.15);
+}
+
+/******** Badges ********/
+.badge-soft-primary {
+  background: rgba(88,105,240,0.1);
+  color: var(--primary-600);
+  border: 1px solid rgba(88,105,240,0.2);
+}
+
+/******** Utilities ********/
+.section-title {
+  color: var(--text-strong);
+}
+.text-muted-2 {
+  color: var(--text-muted) !important;
+}
+
+.container-narrow {
+  max-width: 960px;
+} 
+
+/******** Typography ********/
+body {
+  font-size: 16.5px; /* tăng nhẹ cỡ chữ cơ bản */
+  line-height: 1.6;
+  color: var(--text-strong);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-strong);
+  letter-spacing: 0.2px;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.2rem; }
+
+.section-title { margin-bottom: 0.75rem; }
+
+.small, small { color: var(--text-muted); } 
+
+/******** Badges (tone nâu) ********/
+.badge.bg-primary, .badge-soft-primary {
+  background: rgba(176, 137, 104, 0.15) !important; /* primary-500 */
+  color: var(--primary-600) !important;
+  border: 1px solid rgba(176, 137, 104, 0.35) !important;
+}
+.badge.bg-success {
+  background: rgba(156, 122, 93, 0.15) !important;
+  color: var(--primary-600) !important;
+  border: 1px solid rgba(156, 122, 93, 0.35) !important;
+}
+.badge.bg-info, .badge.bg-warning, .badge.bg-danger, .badge.bg-secondary {
+  background: rgba(197, 143, 90, 0.12) !important;
+  color: #5a4a3e !important;
+  border: 1px solid rgba(197, 143, 90, 0.3) !important;
+}
+
+/******** Progress ********/
+.progress {
+  background: rgba(0,0,0,0.06);
+  border-radius: 10px;
+}
+.progress-bar {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+}
+
+/******** Tables ********/
+.table thead, .table-light {
+  background: linear-gradient(180deg, #ffffff, #faf7f3) !important;
+}
+.table-hover tbody tr:hover {
+  background-color: rgba(176, 137, 104, 0.06);
+}
+.table-primary, .table-success, .table-warning, .table-danger, .table-info, .table-secondary {
+  background-color: rgba(197, 143, 90, 0.08) !important;
+}
+
+/******** Alerts ********/
+.alert-info, .alert-success, .alert-warning, .alert-danger, .alert-secondary {
+  background: linear-gradient(180deg, #fff, #fbf7f3);
+  border-color: rgba(197, 143, 90, 0.3);
+  color: #4a3e34;
+} 
+
+/******** Softer Tables ********/
+.table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+.table th, .table td {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+.table thead th {
+  border-bottom: 1px solid var(--border);
+}
+
+/******** Softer Modal ********/
+.modal-content {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+}
+.modal-header {
+  background: linear-gradient(135deg, #ffffff, #faf7f3);
+  border-bottom: 1px solid var(--border);
+}
+.modal-footer {
+  background: #fff;
+  border-top: 1px solid var(--border);
+} 
+
+/******** Spacing & Sections ********/
+.section {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+.gx-3 { --bs-gutter-x: 1.25rem; }
+.gy-3 { --bs-gutter-y: 1.25rem; }
+
+/******** Inputs & Buttons radius ********/
+.form-control, .form-select, .btn, .badge {
+  border-radius: 12px !important;
+}
+
+/******** Cards hover ********/
+.card.app-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card.app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/******** Images in cards ********/
+.card-img-top {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+/******** Links ********/
+a { color: var(--primary-600); }
+a:hover { color: var(--primary-500); } 
+
+/******** Compare FAB ********/
+.compare-fab {
+  position: relative;
+  width: auto;
+  height: 48px;
+  padding: 0 16px 0 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+  border: none;
+}
+.compare-fab:hover {
+  filter: brightness(0.97);
+}
+.compare-fab .compare-count {
+  background: #fff;
+  color: var(--primary-600);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 1;
+  border: 1px solid rgba(0,0,0,0.06);
+} 
+
+/******** Compare FAB bump animation ********/
+@keyframes bump {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-2px) scale(1.03); }
+  60% { transform: translateY(0) scale(0.99); }
+  100% { transform: translateY(0) scale(1); }
+}
+.compare-fab.bump {
+  animation: bump 260ms ease-out;
+} 
+
+/******** Compare table ********/
+.compare-table {
+  border: 1px solid var(--border);
+}
+.compare-table thead.subtle-head th {
+  background: linear-gradient(180deg, #ffffff, #faf7f3) !important;
+  color: var(--text-strong);
+}
+.compare-table tbody tr.table-section th {
+  background: rgba(197, 143, 90, 0.09) !important;
+  color: #463a31;
+  font-weight: 700;
+  border-top: 1px solid rgba(197, 143, 90, 0.2);
+  border-bottom: 1px solid rgba(197, 143, 90, 0.2);
+  letter-spacing: 0.2px;
+}
+.compare-table tbody tr:nth-child(odd) td {
+  background: rgba(0,0,0,0.015);
+}
+.compare-table td, .compare-table th {
+  vertical-align: middle;
+}
+
+/* highlight cột tiêu đề thông số */
+.compare-table tbody td:first-child, .compare-table thead th:first-child {
+  background: rgba(197, 143, 90, 0.04);
+  font-weight: 600;
+}
+
+/* viền nhẹ giữa các cột */
+.compare-table td + td, .compare-table th + th {
+  border-left: 1px solid rgba(0,0,0,0.04);
+} 

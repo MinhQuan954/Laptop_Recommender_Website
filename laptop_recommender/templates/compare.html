@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>So sánh laptop</h3>
+        <a href="{{ url_for('laptops') }}" class="btn btn-outline-primary">Quay lại danh sách</a>
+    </div>
+
+    {% if not items %}
+    <div class="alert alert-info">
+        <h5>Chưa có laptop nào để so sánh</h5>
+        <p class="mb-0">Hãy chọn ít nhất 2 laptop để so sánh bằng cách:</p>
+        <ul class="mb-0 mt-2">
+            <li>Thêm <code>?id=1&id=2</code> vào URL</li>
+            <li>Hoặc sử dụng nút "So sánh" từ trang danh sách laptop</li>
+        </ul>
+    </div>
+    {% else %}
+    
+    <!-- Thông tin tổng quan -->
+    <div class="row mb-4">
+        {% for it in items %}
+        <div class="col-md-6 col-lg-{{ 12 // items|length }} mb-3">
+            <div class="card h-100 app-card">
+                <img src="{{ it.image_url or 'https://via.placeholder.com/400x250?text=Laptop' }}" 
+                     class="card-img-top" alt="{{ it.name }}" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ it.name }}</h5>
+                    <p class="card-text text-primary fw-bold fs-4">{{ "{:,.0f}".format(it.price) }} VND</p>
+                    <div class="small text-muted">
+                        <div><strong>Thương hiệu:</strong> {{ it.brand }}</div>
+                        <div><strong>CPU:</strong> {{ it.cpu }}</div>
+                        <div><strong>RAM:</strong> {{ it.ram_gb }}GB</div>
+                        {% if it.gpu %}
+                        <div><strong>GPU:</strong> {{ it.gpu }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- So sánh thời gian dùng pin -->
+    <div class="card mb-4 app-card">
+        <div class="card-header app-card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">So sánh thời gian dùng pin</h5>
+            <div class="d-flex align-items-center">
+                <span class="me-2">Sắp xếp theo:</span>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-light active" onclick="sortBattery('asc')">Tăng dần</button>
+                    <button type="button" class="btn btn-light" onclick="sortBattery('desc')">Giảm dần</button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% for it in items %}
+            <div class="mb-4">
+                <h6 class="mb-2">{{ it.name }}</h6>
+                
+                <!-- Dung lượng pin -->
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">Dung lượng pin</span>
+                        <span class="small fw-bold">{{ it.battery_capacity or 0 }} Wh</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar battery-capacity" role="progressbar" 
+                             data-width="{{ ((it.battery_capacity or 0) / 100) * 100 }}"></div>
+                    </div>
+                </div>
+                
+                <!-- Thời gian dùng pin -->
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">Thời gian dùng pin</span>
+                        <span class="small fw-bold">
+                            {% if it.battery_life_office %}
+                                {{ (it.battery_life_office // 60) }}g {{ it.battery_life_office % 60 }}p
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar battery-life" role="progressbar" 
+                             data-width="{{ ((it.battery_life_office or 0) / 1500) * 100 }}"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="mt-3 p-3 bg-light rounded">
+                <small class="text-muted">
+                    <strong>Ghi chú:</strong> Thời gian test pin ứng dụng văn phòng được ghi nhận bằng cách chạy script tự động hóa mã nguồn mở. 
+                    Các điều kiện thỏa tiêu chuẩn ghi trong README của script.
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- So sánh điểm số CPU -->
+    <div class="card mb-4 app-card">
+        <div class="card-header app-card-header">
+            <h5 class="mb-0">So sánh điểm số CPU</h5>
+            <small>Điểm số CPU càng cao càng tốt. Điểm cao hơn cho thấy sức mạnh xử lý của máy tốt hơn, giúp thực hiện các tác vụ nhanh hơn và hiệu quả hơn.</small>
+        </div>
+        <div class="card-body">
+            <!-- Chế độ so sánh -->
+            <div class="mb-3">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-success" onclick="switchCPUMode('battery')">Dùng pin</button>
+                    <button type="button" class="btn btn-success active" onclick="switchCPUMode('plugged')">Cắm sạc</button>
+                </div>
+            </div>
+            
+            <!-- Biểu đồ CPU -->
+            <div id="cpuChart">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-center mb-3">Geekbench 6 CPU Single Core</h6>
+                        {% for it in items %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small">{{ it.name[:20] }}...</span>
+                                <span class="small fw-bold">{{ it.cpu_single_core_plugged or 0 }}</span>
+                            </div>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     data-width="{{ ((it.cpu_single_core_plugged or 0) / 3000) * 100 }}"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-center mb-3">Geekbench 6 CPU Multi Core</h6>
+                        {% for it in items %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small">{{ it.name[:20] }}...</span>
+                                <span class="small fw-bold">{{ it.cpu_multi_core_plugged or 0 }}</span>
+                            </div>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-info" role="progressbar" 
+                                     data-width="{{ ((it.cpu_multi_core_plugged or 0) / 15000) * 100 }}"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- So sánh điểm số GPU -->
+    <div class="card mb-4 app-card">
+        <div class="card-header app-card-header">
+            <h5 class="mb-0">So sánh điểm số GPU</h5>
+            <small>Điểm số GPU càng cao càng tốt. Điểm cao hơn cho thấy khả năng xử lý đồ họa tốt hơn, phù hợp cho gaming và thiết kế.</small>
+        </div>
+        <div class="card-body">
+            <!-- Chế độ so sánh -->
+            <div class="mb-3">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-danger" onclick="switchGPUMode('battery')">Dùng pin</button>
+                    <button type="button" class="btn btn-danger active" onclick="switchGPUMode('plugged')">Cắm sạc</button>
+                </div>
+            </div>
+            
+            <!-- Biểu đồ GPU -->
+            <div id="gpuChart">
+                {% for it in items %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small">{{ it.name }}</span>
+                        <span class="small fw-bold">{{ it.gpu_score_plugged or 0 }}</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-danger" role="progressbar" 
+                             data-width="{{ ((it.gpu_score_plugged or 0) / 20000) * 100 }}"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng so sánh chi tiết -->
+    <div class="card app-card">
+        <div class="card-header app-card-header">
+            <h5 class="mb-0">So sánh chi tiết</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 compare-table">
+                    <thead class="table-light subtle-head">
+                        <tr>
+                            <th style="width: 200px;">Thông số</th>
+                            {% for it in items %}
+                            <th class="text-center">{{ it.brand }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- CPU -->
+                        <tr class="table-section">
+                            <th colspan="{{ items|length + 1 }}">Bộ xử lý</th>
+                        </tr>
+                        <tr>
+                            <td><strong>CPU</strong></td>
+                            {% for it in items %}
+                            <td class="text-center">
+                                <span class="badge bg-info">{{ it.cpu }}</span>
+                            </td>
+                            {% endfor %}
+                        </tr>
+
+                        <!-- RAM -->
+                        <tr class="table-section">
+                            <th colspan="{{ items|length + 1 }}">Bộ nhớ</th>
+                        </tr>
+                        <tr>
+                            <td><strong>RAM</strong></td>
+                            {% for it in items %}
+                            <td class="text-center">
+                                <span class="badge bg-success">{{ it.ram_gb }}GB</span>
+                            </td>
+                            {% endfor %}
+                        </tr>
+
+                        <!-- GPU -->
+                        <tr class="table-section">
+                            <th colspan="{{ items|length + 1 }}">Đồ họa</th>
+                        </tr>
+                        <tr>
+                            <td><strong>GPU</strong></td>
+                            {% for it in items %}
+                            <td class="text-center">
+                                {% if it.gpu %}
+                                    {% if 'rtx' in it.gpu.lower() or 'gtx' in it.gpu.lower() %}
+                                        <span class="badge bg-danger">{{ it.gpu }}</span>
+                                    {% elif 'mx' in it.gpu.lower() or 'iris' in it.gpu.lower() %}
+                                        <span class="badge bg-warning text-dark">{{ it.gpu }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ it.gpu }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+
+                        <!-- Pin -->
+                        <tr class="table-section">
+                            <th colspan="{{ items|length + 1 }}">Pin</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Dung lượng</strong></td>
+                            {% for it in items %}
+                            <td class="text-center">
+                                <span class="badge bg-info">{{ it.battery_capacity or 'N/A' }} Wh</span>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Thời gian dùng</strong></td>
+                            {% for it in items %}
+                            <td class="text-center">
+                                {% if it.battery_life_office %}
+                                    <span class="badge bg-success">{{ (it.battery_life_office // 60) }}g {{ it.battery_life_office % 60 }}p</span>
+                                {% else %}
+                                    <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+
+                        <!-- Giá cả -->
+                        <tr class="table-section">
+                            <th colspan="{{ items|length + 1 }}">Giá cả</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Giá bán</strong></td>
+                            {% for it in items %}
+                            <td class="text-center">
+                                <span class="fw-bold text-danger">{{ "{:,.0f}".format(it.price) }} VND</span>
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Nhận xét theo tiêu chí -->
+    <div class="card app-card mt-4">
+        <div class="card-header app-card-header">
+            <h5 class="mb-0">Nhận xét theo tiêu chí</h5>
+        </div>
+        <div class="card-body">
+            {% if items and items|length >= 2 %}
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="p-3 rounded border" style="border-color: var(--border) !important; background: rgba(197,143,90,0.05);">
+                        <div class="small text-muted">Giá/Hiệu năng tốt nhất</div>
+                        <div class="fw-bold">{{ best_price_performance.name }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 rounded border" style="border-color: var(--border) !important; background: rgba(197,143,90,0.05);">
+                        <div class="small text-muted">Hiệu năng tốt nhất</div>
+                        <div class="fw-bold">{{ best_performance.name }}</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 rounded border" style="border-color: var(--border) !important; background: rgba(197,143,90,0.05);">
+                        <div class="small text-muted">Giá tốt nhất</div>
+                        <div class="fw-bold">{{ best_value.name }}</div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-muted">Chọn ít nhất 2 sản phẩm để xem nhận xét theo tiêu chí.</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% endif %}
+</div>
+
+<style>
+.battery-capacity { 
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600)) !important; 
+}
+.battery-life { 
+    background: linear-gradient(135deg, #d4a373, #c58f5a) !important; 
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set width cho progress bars
+    document.querySelectorAll('[data-width]').forEach(function(element) {
+        const width = parseFloat(element.getAttribute('data-width'));
+        element.style.width = Math.min(width, 100) + '%';
+    });
+    
+    // Lấy laptop IDs từ URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const laptopIds = urlParams.getAll('id');
+    
+    // Lưu laptop IDs để sử dụng cho API
+    window.laptopIds = laptopIds;
+});
+
+function sortBattery(direction) {
+    console.log('Sắp xếp pin theo:', direction);
+    // Có thể implement AJAX để sắp xếp real-time
+}
+
+function switchCPUMode(mode) {
+    console.log('Chuyển mode CPU:', mode);
+    
+    // Cập nhật trạng thái nút
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-outline-success');
+    });
+    
+    const activeBtn = event.target;
+    activeBtn.classList.add('active');
+    activeBtn.classList.add('btn-success');
+    activeBtn.classList.remove('btn-outline-success');
+    
+    // Load dữ liệu mới từ API
+    loadCPUData(mode);
+}
+
+function switchGPUMode(mode) {
+    console.log('Chuyển mode GPU:', mode);
+    
+    // Cập nhật trạng thái nút
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-outline-danger');
+    });
+    
+    const activeBtn = event.target;
+    activeBtn.classList.add('active');
+    activeBtn.classList.add('btn-danger');
+    activeBtn.classList.remove('btn-outline-danger');
+    
+    // Load dữ liệu mới từ API
+    loadGPUData(mode);
+}
+
+function loadCPUData(mode) {
+    if (!window.laptopIds) return;
+    
+    const url = `/api/compare_data?id=${window.laptopIds.join('&id=')}&mode=${mode}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            updateCPUCharts(data);
+        })
+        .catch(error => {
+            console.error('Lỗi khi load dữ liệu CPU:', error);
+        });
+}
+
+function loadGPUData(mode) {
+    if (!window.laptopIds) return;
+    
+    const url = `/api/compare_data?id=${window.laptopIds.join('&id=')}&mode=${mode}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            updateGPUCharts(data);
+        })
+        .catch(error => {
+            console.error('Lỗi khi load dữ liệu GPU:', error);
+        });
+}
+
+function updateCPUCharts(data) {
+    // Cập nhật Single Core
+    const singleCoreContainer = document.querySelector('#cpuChart .col-md-6:first-child');
+    singleCoreContainer.innerHTML = '<h6 class="text-center mb-3">Geekbench 6 CPU Single Core</h6>';
+    
+    data.cpu_single_core.forEach(item => {
+        const width = Math.min((item.score / 3000) * 100, 100);
+        singleCoreContainer.innerHTML += `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small">${item.name.substring(0, 20)}...</span>
+                    <span class="small fw-bold">${item.score.toLocaleString()}</span>
+                </div>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: ${width}%"></div>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Cập nhật Multi Core
+    const multiCoreContainer = document.querySelector('#cpuChart .col-md-6:last-child');
+    multiCoreContainer.innerHTML = '<h6 class="text-center mb-3">Geekbench 6 CPU Multi Core</h6>';
+    
+    data.cpu_multi_core.forEach(item => {
+        const width = Math.min((item.score / 15000) * 100, 100);
+        multiCoreContainer.innerHTML += `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small">${item.name.substring(0, 20)}...</span>
+                    <span class="small fw-bold">${item.score.toLocaleString()}</span>
+                </div>
+                <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: ${width}%"></div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function updateGPUCharts(data) {
+    const gpuContainer = document.querySelector('#gpuChart');
+    gpuContainer.innerHTML = '';
+    
+    data.gpu_score.forEach(item => {
+        const width = Math.min((item.score / 20000) * 100, 100);
+        gpuContainer.innerHTML += `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small">${item.name}</span>
+                    <span class="small fw-bold">${item.score.toLocaleString()}</span>
+                </div>
+                <div class="progress" style="height: 25px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: ${width}%"></div>
+                </div>
+            </div>
+        `;
+    });
+}
+</script>
+{% endblock %}

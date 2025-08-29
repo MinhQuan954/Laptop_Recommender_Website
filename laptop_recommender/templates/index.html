@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Hệ Thống Gợi Ý Laptop Thông Minh</h1>
+    
+    <!-- Gợi ý nhanh theo thương hiệu -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3>Lọc theo thương hiệu</h3>
+            <div class="d-flex flex-wrap gap-2">
+                {% for brand in brands %}
+                <a href="{{ url_for('laptops', brand=brand) }}" class="btn btn-outline-primary">{{ brand }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Gợi ý chi tiết theo nhu cầu -->
+    <div class="row">
+        <div class="col-12">
+            <h3>Gợi ý chi tiết theo nhu cầu</h3>
+            <div class="card app-card">
+                <div class="card-body">
+                    <form action="{{ url_for('recommend') }}" method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="need" class="form-label">Nhu cầu sử dụng</label>
+                            <select class="form-select" id="need" name="need" required>
+                                <option value="">Chọn nhu cầu...</option>
+                                <option value="gaming">Gaming (Chơi game)</option>
+                                <option value="design">Design (Thiết kế đồ họa)</option>
+                                <option value="dev">Development (Lập trình)</option>
+                                <option value="student">Student (Sinh viên)</option>
+                                <option value="office">Office (Văn phòng)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="budget" class="form-label">Ngân sách (VND)</label>
+                            <input type="number" class="form-control" id="budget" name="budget" 
+                                   placeholder="VD: 20000000" min="5000000" max="100000000">
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="priority" class="form-label">Ưu tiên</label>
+                            <select class="form-select" id="priority" name="priority">
+                                <option value="balanced">Cân bằng</option>
+                                <option value="performance">Hiệu năng cao</option>
+                                <option value="budget">Tiết kiệm chi phí</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Tìm kiếm gợi ý</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông tin chi tiết về tiêu chí -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4>Tiêu chí gợi ý theo từng nhu cầu:</h4>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 app-card">
+                        <div class="card-header app-card-header">
+                            <h5 class="mb-0">Gaming</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li>• RAM: ≥ 16GB</li>
+                                <li>• CPU: H/HX/HK series</li>
+                                <li>• GPU: Rời (RTX/GTX/RX)</li>
+                                <li>• Giá: ≥ 15 triệu</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 app-card">
+                        <div class="card-header app-card-header">
+                            <h5 class="mb-0">Design</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li>• RAM: ≥ 16GB</li>
+                                <li>• CPU: H/HX/HK/P series</li>
+                                <li>• GPU: Rời</li>
+                                <li>• Màn hình: Chất lượng cao</li>
+                                <li>• Giá: ≥ 20 triệu</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 app-card">
+                        <div class="card-header app-card-header">
+                            <h5 class="mb-0">Development</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li>• RAM: ≥ 16GB</li>
+                                <li>• CPU: Linh hoạt</li>
+                                <li>• Storage: SSD ưu tiên</li>
+                                <li>• Giá: ≥ 12 triệu</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 app-card">
+                        <div class="card-header app-card-header">
+                            <h5 class="mb-0">Student</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li>• RAM: ≥ 8GB</li>
+                                <li>• CPU: U/P/H series</li>
+                                <li>• Ưu tiên giá cả</li>
+                                <li>• Giá: ≥ 8 triệu</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 app-card">
+                        <div class="card-header app-card-header">
+                            <h5 class="mb-0">Office</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li>• RAM: ≥ 8GB</li>
+                                <li>• CPU: U/P series</li>
+                                <li>• Tiết kiệm điện</li>
+                                <li>• Giá: ≥ 6 triệu</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Hiển thị thông tin chi tiết khi chọn nhu cầu
+document.getElementById('need').addEventListener('change', function() {
+    const need = this.value;
+    const budgetInput = document.getElementById('budget');
+    
+    // Gợi ý ngân sách theo nhu cầu
+    const budgetSuggestions = {
+        'gaming': 25000000,
+        'design': 30000000,
+        'dev': 20000000,
+        'student': 15000000,
+        'office': 12000000
+    };
+    
+    if (need && budgetSuggestions[need]) {
+        budgetInput.placeholder = `Gợi ý: ${budgetSuggestions[need].toLocaleString('vi-VN')} VND`;
+    }
+});
+</script>
+{% endblock %}
