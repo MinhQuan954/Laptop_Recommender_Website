@@ -63,15 +63,12 @@
         {% endif %}
       </ul>
       
-      <!-- Search form với animation -->
+      <!-- Search form -->
       <form class="d-flex position-relative search-form" role="search" action="{{ url_for('laptops') }}" autocomplete="off">
-        <div class="input-group">
-          <input class="form-control search-input" id="navbarSearch" type="search" placeholder="🔍 Tìm laptop..." name="q" aria-label="Tìm kiếm laptop">
-          <button class="btn btn-outline-primary search-btn" type="submit" aria-label="Tìm kiếm">
-            <span class="search-text">Tìm</span>
-            <span class="search-icon">🔍</span>
-          </button>
-        </div>
+        <input class="form-control search-input" id="navbarSearch" type="search" placeholder="Tìm laptop..." name="q" aria-label="Tìm kiếm laptop">
+        <button class="btn btn-primary search-btn" type="submit" aria-label="Tìm kiếm">
+          <span class="search-icon">🔍</span>
+        </button>
         <div id="searchSuggest" class="position-fixed search-suggest-container" style="display:none;"></div>
       </form>
       
@@ -401,34 +398,54 @@ window.addEventListener('load', function() {
 /* Search form improvements */
 .search-form {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .search-input {
-  border-radius: 25px 0 0 25px;
-  border-right: none;
-  padding-left: 1rem;
+  border-radius: 25px;
+  border: 2px solid var(--border);
+  padding: 0.75rem 1rem;
+  min-width: 250px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  outline: none;
 }
 
 .search-btn {
-  border-radius: 0 25px 25px 0;
-  border-left: none;
-  padding: 0.75rem 1.25rem;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all 0.3s ease;
 }
 
-.search-text {
-  display: inline;
+.search-btn:hover {
+  transform: scale(1.05);
 }
 
 .search-icon {
-  display: none;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .search-input {
+    min-width: 200px;
+  }
 }
 
 @media (max-width: 576px) {
-  .search-text {
-    display: none;
-  }
-  .search-icon {
-    display: inline;
+  .search-input {
+    min-width: 150px;
   }
 }
 
