@@ -197,6 +197,36 @@ backToTopBtn.addEventListener('click', function() {
   });
 });
 
+// Function to update back to top button position
+function updateBackToTopPosition() {
+  const compareBtn = document.getElementById('showCompareBtn');
+  if (compareBtn && compareBtn.style.display !== 'none') {
+    backToTopBtn.classList.add('with-compare');
+  } else {
+    backToTopBtn.classList.remove('with-compare');
+  }
+}
+
+// Observer to watch for compare button changes
+const compareButtonObserver = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+      updateBackToTopPosition();
+    }
+  });
+});
+
+// Start observing the compare button if it exists
+document.addEventListener('DOMContentLoaded', function() {
+  const compareBtn = document.getElementById('showCompareBtn');
+  if (compareBtn) {
+    compareButtonObserver.observe(compareBtn, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+  }
+});
+
 // Search functionality với cải tiến
 (function(){
   const input = document.getElementById('navbarSearch');
@@ -524,6 +554,10 @@ window.addEventListener('load', function() {
 .back-to-top.show {
   opacity: 1;
   visibility: visible;
+}
+
+.back-to-top.show.with-compare {
+  bottom: 100px;
 }
 
 .back-to-top:hover {

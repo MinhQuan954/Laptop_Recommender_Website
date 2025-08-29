@@ -45,17 +45,10 @@
     <div class="card mb-4 app-card">
         <div class="card-header app-card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">So sánh thời gian dùng pin</h5>
-            <div class="d-flex align-items-center">
-                <span class="me-2">Sắp xếp theo:</span>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-light active" onclick="sortBattery('asc')">Tăng dần</button>
-                    <button type="button" class="btn btn-light" onclick="sortBattery('desc')">Giảm dần</button>
-                </div>
-            </div>
         </div>
-        <div class="card-body">
+        <div class="card-body" id="batteryComparison">
             {% for it in items %}
-            <div class="mb-4">
+            <div class="mb-4 battery-item" data-battery-life="{{ it.battery_life_office or 0 }}" data-battery-capacity="{{ it.battery_capacity or 0 }}">
                 <h6 class="mb-2">{{ it.name }}</h6>
                 
                 <!-- Dung lượng pin -->
@@ -109,8 +102,8 @@
             <!-- Chế độ so sánh -->
             <div class="mb-3">
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-success" onclick="switchCPUMode('battery')">Dùng pin</button>
-                    <button type="button" class="btn btn-success active" onclick="switchCPUMode('plugged')">Cắm sạc</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="switchCPUMode('battery')">Dùng pin</button>
+                    <button type="button" class="btn btn-primary active" onclick="switchCPUMode('plugged')">Cắm sạc</button>
                 </div>
             </div>
             
@@ -162,8 +155,8 @@
             <!-- Chế độ so sánh -->
             <div class="mb-3">
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-danger" onclick="switchGPUMode('battery')">Dùng pin</button>
-                    <button type="button" class="btn btn-danger active" onclick="switchGPUMode('plugged')">Cắm sạc</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="switchGPUMode('battery')">Dùng pin</button>
+                    <button type="button" class="btn btn-primary active" onclick="switchGPUMode('plugged')">Cắm sạc</button>
                 </div>
             </div>
             
@@ -353,7 +346,38 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Lưu laptop IDs để sử dụng cho API
     window.laptopIds = laptopIds;
+    
+    // Sắp xếp phần pin theo thời gian pin tốt hơn
+    sortBatteryComparison();
 });
+
+// Sắp xếp phần pin theo thời gian pin tốt hơn
+function sortBatteryComparison() {
+    const container = document.getElementById('batteryComparison');
+    if (!container) return;
+    
+    const batteryItems = Array.from(container.querySelectorAll('.battery-item'));
+    
+    // Sắp xếp theo thời gian pin (cao nhất lên đầu)
+    batteryItems.sort((a, b) => {
+        const lifeA = parseInt(a.dataset.batteryLife) || 0;
+        const lifeB = parseInt(b.dataset.batteryLife) || 0;
+        return lifeB - lifeA;
+    });
+    
+    // Thêm icon cho laptop có pin tốt nhất
+    batteryItems.forEach((item, index) => {
+        const title = item.querySelector('h6');
+        if (index === 0 && title) {
+            title.innerHTML = '🥇 ' + title.textContent;
+        }
+    });
+    
+    // Sắp xếp lại trong container
+    batteryItems.forEach(item => {
+        container.appendChild(item);
+    });
+}
 
 function sortBattery(direction) {
     console.log('Sắp xếp pin theo:', direction);
@@ -364,16 +388,17 @@ function switchCPUMode(mode) {
     console.log('Chuyển mode CPU:', mode);
     
     // Cập nhật trạng thái nút
-    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+    const btnGroup = event.target.closest('.btn-group');
+    btnGroup.querySelectorAll('.btn').forEach(btn => {
         btn.classList.remove('active');
-        btn.classList.remove('btn-success');
-        btn.classList.add('btn-outline-success');
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-primary');
     });
     
     const activeBtn = event.target;
     activeBtn.classList.add('active');
-    activeBtn.classList.add('btn-success');
-    activeBtn.classList.remove('btn-outline-success');
+    activeBtn.classList.add('btn-primary');
+    activeBtn.classList.remove('btn-outline-primary');
     
     // Load dữ liệu mới từ API
     loadCPUData(mode);
@@ -383,16 +408,17 @@ function switchGPUMode(mode) {
     console.log('Chuyển mode GPU:', mode);
     
     // Cập nhật trạng thái nút
-    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+    const btnGroup = event.target.closest('.btn-group');
+    btnGroup.querySelectorAll('.btn').forEach(btn => {
         btn.classList.remove('active');
-        btn.classList.remove('btn-danger');
-        btn.classList.add('btn-outline-danger');
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-primary');
     });
     
     const activeBtn = event.target;
     activeBtn.classList.add('active');
-    activeBtn.classList.add('btn-danger');
-    activeBtn.classList.remove('btn-outline-danger');
+    activeBtn.classList.add('btn-primary');
+    activeBtn.classList.remove('btn-outline-primary');
     
     // Load dữ liệu mới từ API
     loadGPUData(mode);
@@ -445,16 +471,23 @@ function loadGPUData(mode) {
 }
 
 function updateCPUCharts(data) {
+    // Sắp xếp theo điểm số cao nhất (tốt nhất đứng trên)
+    const sortedSingleCore = [...data.cpu_single_core].sort((a, b) => b.score - a.score);
+    const sortedMultiCore = [...data.cpu_multi_core].sort((a, b) => b.score - a.score);
+    
     // Cập nhật Single Core
     const singleCoreContainer = document.querySelector('#cpuChart .col-md-6:first-child');
     singleCoreContainer.innerHTML = '<h6 class="text-center mb-3">Geekbench 6 CPU Single Core</h6>';
     
-    data.cpu_single_core.forEach(item => {
+    sortedSingleCore.forEach((item, index) => {
         const width = Math.min((item.score / 3000) * 100, 100);
+        const isBest = index === 0;
         singleCoreContainer.innerHTML += `
             <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="small">${item.name.substring(0, 20)}...</span>
+                    <span class="small">
+                        ${isBest ? '🥇 ' : ''}${item.name.substring(0, 20)}...
+                    </span>
                     <span class="small fw-bold">${item.score.toLocaleString()}</span>
                 </div>
                 <div class="progress" style="height: 20px;">
@@ -468,12 +501,15 @@ function updateCPUCharts(data) {
     const multiCoreContainer = document.querySelector('#cpuChart .col-md-6:last-child');
     multiCoreContainer.innerHTML = '<h6 class="text-center mb-3">Geekbench 6 CPU Multi Core</h6>';
     
-    data.cpu_multi_core.forEach(item => {
+    sortedMultiCore.forEach((item, index) => {
         const width = Math.min((item.score / 15000) * 100, 100);
+        const isBest = index === 0;
         multiCoreContainer.innerHTML += `
             <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="small">${item.name.substring(0, 20)}...</span>
+                    <span class="small">
+                        ${isBest ? '🥇 ' : ''}${item.name.substring(0, 20)}...
+                    </span>
                     <span class="small fw-bold">${item.score.toLocaleString()}</span>
                 </div>
                 <div class="progress" style="height: 20px;">
@@ -485,15 +521,21 @@ function updateCPUCharts(data) {
 }
 
 function updateGPUCharts(data) {
+    // Sắp xếp theo điểm số cao nhất (tốt nhất đứng trên)
+    const sortedGPU = [...data.gpu_score].sort((a, b) => b.score - a.score);
+    
     const gpuContainer = document.querySelector('#gpuChart');
     gpuContainer.innerHTML = '';
     
-    data.gpu_score.forEach(item => {
+    sortedGPU.forEach((item, index) => {
         const width = Math.min((item.score / 20000) * 100, 100);
+        const isBest = index === 0;
         gpuContainer.innerHTML += `
             <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="small">${item.name}</span>
+                    <span class="small">
+                        ${isBest ? '🥇 ' : ''}${item.name}
+                    </span>
                     <span class="small fw-bold">${item.score.toLocaleString()}</span>
                 </div>
                 <div class="progress" style="height: 25px;">

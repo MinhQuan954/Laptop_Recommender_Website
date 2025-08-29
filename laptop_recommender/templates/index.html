@@ -705,6 +705,11 @@ function updateCompareUI() {
     } else {
         showCompareBtn.style.display = 'none';
     }
+    
+    // Cập nhật vị trí nút back to top
+    if (typeof updateBackToTopPosition === 'function') {
+        updateBackToTopPosition();
+    }
 }
 
 // Load sản phẩm khi trang được tải
