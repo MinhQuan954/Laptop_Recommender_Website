@@ -24,8 +24,8 @@ body.app-gradient {
 /******** Navbar ********/
 .navbar.app-navbar {
   background: rgba(255,255,255,0.7) !important;
-  backdrop-filter: saturate(180%) blur(10px);
   -webkit-backdrop-filter: saturate(180%) blur(10px);
+  backdrop-filter: saturate(180%) blur(10px);
   border-bottom: 1px solid var(--border) !important;
 }
 
@@ -302,4 +302,64 @@ a:hover { color: var(--primary-500); }
 /* viền nhẹ giữa các cột */
 .compare-table td + td, .compare-table th + th {
   border-left: 1px solid rgba(0,0,0,0.04);
+}
+
+/******** Search Suggestions ********/
+#searchSuggest {
+  z-index: 999999999 !important;
+  position: fixed !important;
+  pointer-events: auto !important;
+  isolation: isolate !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+  contain: layout style paint !important;
+}
+
+#searchSuggest .card {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2) !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  background: white !important;
+}
+
+#searchSuggest .list-group-item {
+  border: none !important;
+  border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+  transition: background-color 0.15s ease !important;
+}
+
+#searchSuggest .list-group-item:hover {
+  background-color: rgba(176, 137, 104, 0.08) !important;
+}
+
+#searchSuggest .list-group-item:last-child {
+  border-bottom: none !important;
+}
+
+/* Đảm bảo không có phần tử nào che khuất search suggestions */
+.navbar, .modal, .dropdown-menu {
+  z-index: 999999998 !important;
+}
+
+/* Đảm bảo search suggestions luôn hiển thị trên cùng */
+#searchSuggest {
+  position: fixed !important;
+  z-index: 999999999 !important;
+  pointer-events: auto !important;
+  isolation: isolate !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+  contain: layout style paint !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Đảm bảo các phần tử khác không che khuất */
+.container, .row, .col, .card, .btn, .form-control {
+  z-index: auto !important;
+}
+
+/* Đặc biệt cho navbar search */
+.navbar .d-flex.position-relative {
+  z-index: 999999999 !important;
 } 

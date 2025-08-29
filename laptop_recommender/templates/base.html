@@ -97,11 +97,15 @@
     container.style.left = rect.left + 'px';
     container.style.top = (rect.bottom + 5) + 'px';
     container.style.width = rect.width + 'px';
-    container.style.zIndex = '2147483647';
+    container.style.zIndex = '999999999';
     container.style.position = 'fixed';
     container.style.backgroundColor = 'white';
-    container.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    container.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)';
     container.style.border = '1px solid #ddd';
+    container.style.borderRadius = '12px';
+    container.style.pointerEvents = 'auto';
+    container.style.isolation = 'isolate';
+    container.style.transform = 'translateZ(0)';
     console.log('Container styles:', container.style.cssText); // Debug
     
     if (!items || items.length === 0){
@@ -159,15 +163,40 @@
   });
 
   input.addEventListener('focus', function(){
-    if (container.innerHTML.trim()) container.style.display = 'block';
+    if (container.innerHTML.trim()) {
+      container.style.display = 'block';
+      container.style.visibility = 'visible';
+      container.style.opacity = '1';
+    }
   });
 
   input.addEventListener('blur', function(){
-    hideTimer = setTimeout(() => { container.style.display = 'none'; }, 120);
+    hideTimer = setTimeout(() => { 
+      container.style.display = 'none';
+      container.style.visibility = 'hidden';
+      container.style.opacity = '0';
+    }, 120);
   });
 
-  container.addEventListener('mousedown', function(){
+  container.addEventListener('mousedown', function(e){
+    e.preventDefault();
+    e.stopPropagation();
     if (hideTimer) clearTimeout(hideTimer);
+  });
+
+  // Đảm bảo container luôn hiển thị khi có nội dung
+  container.addEventListener('mouseenter', function(){
+    if (hideTimer) clearTimeout(hideTimer);
+  });
+
+  container.addEventListener('mouseleave', function(){
+    if (!input.matches(':focus')) {
+      hideTimer = setTimeout(() => { 
+        container.style.display = 'none';
+        container.style.visibility = 'hidden';
+        container.style.opacity = '0';
+      }, 200);
+    }
   });
 })();
 </script>
