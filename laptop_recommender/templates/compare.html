@@ -23,7 +23,7 @@
         <div class="col-md-6 col-lg-{{ 12 // items|length }} mb-3">
             <div class="card h-100 app-card">
                 <img src="{{ it.image_url or 'https://via.placeholder.com/400x250?text=Laptop' }}" 
-                     class="card-img-top" alt="{{ it.name }}" style="height: 200px; object-fit: cover;">
+                     class="card-img-top" alt="{{ it.name }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ it.name }}</h5>
                     <p class="card-text text-primary fw-bold fs-4">{{ "{:,.0f}".format(it.price) }} VND</p>
@@ -401,9 +401,17 @@ function switchGPUMode(mode) {
 function loadCPUData(mode) {
     if (!window.laptopIds) return;
     
-    const url = `/api/compare_data?id=${window.laptopIds.join('&id=')}&mode=${mode}`;
+    // Thêm timestamp để tránh cache
+    const timestamp = new Date().getTime();
+    const url = `/api/compare_data?id=${window.laptopIds.join('&id=')}&mode=${mode}&_t=${timestamp}`;
     
-    fetch(url)
+    fetch(url, {
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
         .then(response => response.json())
         .then(data => {
             updateCPUCharts(data);
@@ -416,9 +424,17 @@ function loadCPUData(mode) {
 function loadGPUData(mode) {
     if (!window.laptopIds) return;
     
-    const url = `/api/compare_data?id=${window.laptopIds.join('&id=')}&mode=${mode}`;
+    // Thêm timestamp để tránh cache
+    const timestamp = new Date().getTime();
+    const url = `/api/compare_data?id=${window.laptopIds.join('&id=')}&mode=${mode}&_t=${timestamp}`;
     
-    fetch(url)
+    fetch(url, {
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
         .then(response => response.json())
         .then(data => {
             updateGPUCharts(data);

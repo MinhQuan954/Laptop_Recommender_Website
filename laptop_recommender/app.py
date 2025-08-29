@@ -622,6 +622,41 @@ def create_app():
                 })
         return jsonify({"items": suggestions})
 
+    @app.route("/api/products")
+    def api_products():
+        """API để lấy danh sách sản phẩm cho trang chủ"""
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 9, type=int)
+        
+        # Lấy sản phẩm với phân trang
+        pagination = Laptop.query.order_by(Laptop.price.asc()).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+        
+        products = []
+        for laptop in pagination.items:
+            products.append({
+                "id": laptop.id,
+                "name": laptop.name,
+                "brand": laptop.brand,
+                "cpu": laptop.cpu,
+                "ram_gb": laptop.ram_gb,
+                "gpu": laptop.gpu,
+                "storage": laptop.storage,
+                "screen": laptop.screen,
+                "price": laptop.price,
+                "category": laptop.category,
+                "image_url": laptop.image_url
+            })
+        
+        return jsonify({
+            "products": products,
+            "has_next": pagination.has_next,
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": page
+        })
+
     return app
 
 def calculate_laptop_score(laptop, criteria, priority):

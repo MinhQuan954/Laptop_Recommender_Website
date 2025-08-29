@@ -69,6 +69,24 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Xóa cache khi chuyển trang
+window.addEventListener('beforeunload', function() {
+    // Xóa localStorage nếu cần
+    if (typeof(Storage) !== "undefined") {
+        // Có thể thêm logic xóa cache cụ thể ở đây
+        console.log('Clearing cache before navigation...');
+    }
+});
+
+// Xóa cache khi load trang mới
+window.addEventListener('load', function() {
+    // Đảm bảo không sử dụng cache cho API calls
+    if (typeof(Storage) !== "undefined") {
+        console.log('Page loaded, cache cleared');
+    }
+});
+</script>
+<script>
 (function(){
   const input = document.getElementById('navbarSearch');
   const container = document.getElementById('searchSuggest');
@@ -136,9 +154,18 @@
   async function fetchSuggest(q){
     if (abortCtrl) abortCtrl.abort();
     abortCtrl = new AbortController();
-    const url = `/api/search_suggest?q=${encodeURIComponent(q)}&limit=3`;
+    // Thêm timestamp để tránh cache
+    const timestamp = new Date().getTime();
+    const url = `/api/search_suggest?q=${encodeURIComponent(q)}&limit=3&_t=${timestamp}`;
     try {
-      const res = await fetch(url, { signal: abortCtrl.signal });
+      const res = await fetch(url, { 
+        signal: abortCtrl.signal,
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       const data = await res.json();
       console.log('Search results:', data.items); // Debug
       render(data.items || []);

@@ -147,6 +147,55 @@
             </div>
         </div>
     </div>
+
+    <!-- Phần hiển thị sản phẩm -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="text-center mb-4">Khám phá laptop</h3>
+            <div id="productsContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                <!-- Sản phẩm sẽ được load ở đây -->
+            </div>
+            <div class="text-center mt-4" id="loadMoreContainer" style="display: none;">
+                <button class="btn btn-primary btn-lg" id="loadMoreBtn" onclick="loadMoreProducts()">
+                    <span id="loadMoreText">Xem thêm</span>
+                    <span id="loadMoreSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chọn laptop so sánh -->
+    <div class="modal fade" id="compareModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chọn laptop để so sánh</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="selectedLaptops" class="mb-3">
+                        <h6>Laptop đã chọn:</h6>
+                        <div id="selectedList" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                    <div class="alert alert-info">
+                        <small>Chọn ít nhất 2 laptop để so sánh (tối đa 4 laptop)</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="compareBtn" disabled>So sánh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating compare button -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1000;">
+        <button class="compare-fab" id="showCompareBtn" style="display: none;">
+            <span>So sánh</span>
+            <span class="compare-count" id="compareCount">0</span>
+        </button>
+    </div>
 </div>
 
 <script>
@@ -167,6 +216,233 @@ document.getElementById('need').addEventListener('change', function() {
     if (need && budgetSuggestions[need]) {
         budgetInput.placeholder = `Gợi ý: ${budgetSuggestions[need].toLocaleString('vi-VN')} VND`;
     }
+});
+
+// Biến để quản lý load sản phẩm
+let currentPage = 1;
+let isLoading = false;
+let hasMoreProducts = true;
+
+// Biến để quản lý so sánh
+let selectedLaptops = [];
+
+// Format giá tiền
+function formatPrice(price) {
+    return new Intl.NumberFormat('vi-VN').format(price) + ' VND';
+}
+
+// Tạo HTML cho sản phẩm
+function createProductCard(product) {
+    return `
+        <div class="col">
+            <div class="card h-100 app-card product-card" data-product-id="${product.id}" style="cursor: pointer;">
+                <img src="${product.image_url || 'https://via.placeholder.com/400x250?text=Laptop'}" 
+                     class="card-img-top" alt="${product.name}">
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title">${product.name}</h6>
+                    
+                    <!-- Thông tin cấu hình -->
+                    <div class="small text-muted mb-2">
+                        <div><strong>Thương hiệu:</strong> ${product.brand}</div>
+                        <div><strong>CPU:</strong> ${product.cpu}</div>
+                        <div><strong>RAM:</strong> ${product.ram_gb}GB</div>
+                        ${product.gpu ? `<div><strong>GPU:</strong> ${product.gpu}</div>` : ''}
+                        <div><strong>Storage:</strong> ${product.storage}</div>
+                        <div><strong>Màn hình:</strong> ${product.screen}</div>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <div class="fw-bold mb-2 text-primary fs-5">${formatPrice(product.price)}</div>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-primary flex-fill" href="/laptop/${product.id}">
+                                Xem chi tiết
+                            </a>
+                            <button class="btn btn-sm btn-outline-secondary compare-btn" 
+                                    data-laptop-id="${product.id}" 
+                                    data-laptop-name="${product.name}">
+                                Chọn so sánh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Load sản phẩm
+async function loadProducts(page = 1, append = false) {
+    if (isLoading) return;
+    
+    isLoading = true;
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const loadMoreText = document.getElementById('loadMoreText');
+    const loadMoreSpinner = document.getElementById('loadMoreSpinner');
+    
+    if (page === 1) {
+        loadMoreText.textContent = 'Đang tải...';
+        loadMoreSpinner.style.display = 'inline-block';
+    }
+    
+    try {
+        // Thêm timestamp để tránh cache
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/products?page=${page}&per_page=9&_t=${timestamp}`, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        });
+        const data = await response.json();
+        
+        const productsContainer = document.getElementById('productsContainer');
+        const loadMoreContainer = document.getElementById('loadMoreContainer');
+        
+        if (page === 1) {
+            productsContainer.innerHTML = '';
+        }
+        
+        // Thêm sản phẩm vào container
+        data.products.forEach(product => {
+            productsContainer.innerHTML += createProductCard(product);
+        });
+        
+        // Cập nhật trạng thái
+        currentPage = data.current_page;
+        hasMoreProducts = data.has_next;
+        
+        // Hiển thị/ẩn nút "Xem thêm"
+        if (hasMoreProducts) {
+            loadMoreContainer.style.display = 'block';
+            loadMoreText.textContent = `Xem thêm (${data.total - (currentPage * 9)} sản phẩm còn lại)`;
+        } else {
+            loadMoreContainer.style.display = 'none';
+        }
+        
+        // Thêm event listeners cho các nút so sánh mới
+        addCompareEventListeners();
+        
+    } catch (error) {
+        console.error('Lỗi khi tải sản phẩm:', error);
+        if (page === 1) {
+            document.getElementById('productsContainer').innerHTML = 
+                '<div class="col-12 text-center"><p class="text-muted">Có lỗi xảy ra khi tải sản phẩm</p></div>';
+        }
+    } finally {
+        isLoading = false;
+        if (page === 1) {
+            loadMoreText.textContent = 'Xem thêm';
+            loadMoreSpinner.style.display = 'none';
+        }
+    }
+}
+
+// Load thêm sản phẩm
+function loadMoreProducts() {
+    if (!isLoading && hasMoreProducts) {
+        loadProducts(currentPage + 1, true);
+    }
+}
+
+// Thêm event listeners cho nút so sánh và card sản phẩm
+function addCompareEventListeners() {
+    // Event listeners cho nút so sánh
+    document.querySelectorAll('.compare-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Ngăn chặn event bubbling
+            const laptopId = this.dataset.laptopId;
+            const laptopName = this.dataset.laptopName;
+            
+            if (selectedLaptops.find(l => l.id === laptopId)) {
+                // Bỏ chọn
+                selectedLaptops = selectedLaptops.filter(l => l.id !== laptopId);
+                this.textContent = 'Chọn so sánh';
+                this.classList.remove('btn-success');
+                this.classList.add('btn-outline-secondary');
+            } else {
+                // Chọn
+                if (selectedLaptops.length >= 4) {
+                    alert('Chỉ có thể chọn tối đa 4 laptop để so sánh!');
+                    return;
+                }
+                selectedLaptops.push({id: laptopId, name: laptopName});
+                this.textContent = 'Đã chọn';
+                this.classList.remove('btn-outline-secondary');
+                this.classList.add('btn-success');
+            }
+            
+            updateCompareUI();
+        });
+    });
+
+    // Event listeners cho card sản phẩm
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Không chuyển hướng nếu click vào nút
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.closest('button') || e.target.closest('a')) {
+                return;
+            }
+            
+            const productId = this.dataset.productId;
+            // Xóa cache trước khi chuyển trang
+            if (typeof(Storage) !== "undefined") {
+                localStorage.removeItem('selectedLaptops');
+                sessionStorage.clear();
+            }
+            window.location.href = `/laptop/${productId}`;
+        });
+    });
+}
+
+// Cập nhật UI so sánh
+function updateCompareUI() {
+    const selectedList = document.getElementById('selectedList');
+    const compareBtn = document.getElementById('compareBtn');
+    const showCompareBtn = document.getElementById('showCompareBtn');
+    
+    // Cập nhật danh sách đã chọn
+    selectedList.innerHTML = '';
+    selectedLaptops.forEach(laptop => {
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-primary me-2';
+        badge.textContent = laptop.name;
+        selectedList.appendChild(badge);
+    });
+    
+    // Cập nhật trạng thái nút
+    compareBtn.disabled = selectedLaptops.length < 2;
+    
+    // Hiển thị/ẩn nút floating
+    if (selectedLaptops.length > 0) {
+        showCompareBtn.style.display = 'inline-flex';
+        document.getElementById('compareCount').textContent = selectedLaptops.length;
+        // hiệu ứng bump
+        showCompareBtn.classList.remove('bump');
+        void showCompareBtn.offsetWidth; // reflow để reset animation
+        showCompareBtn.classList.add('bump');
+    } else {
+        showCompareBtn.style.display = 'none';
+    }
+}
+
+// Load sản phẩm khi trang được tải
+document.addEventListener('DOMContentLoaded', function() {
+    loadProducts(1);
+    
+    // Xử lý nút so sánh trong modal
+    document.getElementById('compareBtn').addEventListener('click', function() {
+        if (selectedLaptops.length >= 2) {
+            const ids = selectedLaptops.map(l => l.id).join('&id=');
+            window.location.href = `/compare?id=${ids}`;
+        }
+    });
+    
+    // Xử lý nút floating
+    document.getElementById('showCompareBtn').addEventListener('click', function() {
+        const modal = new bootstrap.Modal(document.getElementById('compareModal'));
+        modal.show();
+    });
 });
 </script>
 {% endblock %}
