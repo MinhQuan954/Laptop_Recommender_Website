@@ -30,7 +30,7 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
-<body class="app-gradient">
+<body class="app-gradient {% block body_class %}{% endblock %}">
 <!-- Navbar với scroll effect -->
 <nav class="navbar navbar-expand-lg app-navbar border-bottom mb-3" id="mainNavbar">
   <div class="container">

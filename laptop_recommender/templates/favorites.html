@@ -1,26 +1,57 @@
 {% extends "base.html" %}
+
+{% block title %}Yêu thích - Laptop Recommender{% endblock %}
+
+{% block body_class %}favorites-page{% endblock %}
+
 {% block content %}
-<h4 class="mb-3">Danh sách yêu thích</h4>
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-  {% for it in items %}
-  <div class="col">
-    <div class="card h-100">
-      <img src="{{ it.image_url or 'https://via.placeholder.com/400x250?text=Laptop' }}" class="card-img-top">
-      <div class="card-body d-flex flex-column">
-        <h6 class="card-title">{{ it.name }}</h6>
-        <div class="small text-muted mb-2">{{ it.brand }} • {{ it.cpu }} • RAM {{ it.ram_gb }}GB</div>
-        <div class="mt-auto">
-          <form method="post" action="{{ url_for('remove_favorite', laptop_id=it.id) }}" onsubmit="return confirm('Bỏ yêu thích?')">
-            <button class="btn btn-sm btn-outline-danger">Bỏ yêu thích</button>
-            <a class="btn btn-sm btn-primary" href="{{ url_for('laptop_detail', laptop_id=it.id) }}">Chi tiết</a>
-          </form>
-        </div>
-      </div>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Danh sách yêu thích</h3>
+        <a href="{{ url_for('laptops') }}" class="btn btn-outline-primary">Khám phá laptop</a>
     </div>
-  </div>
-  {% endfor %}
+
+    {% if items %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for it in items %}
+        <div class="col">
+            <div class="card h-100 app-card">
+                <img src="{{ it.image_url or 'https://via.placeholder.com/400x250?text=Laptop' }}" 
+                     class="card-img-top" alt="{{ it.name }}">
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title">{{ it.name }}</h6>
+                    <div class="small text-muted mb-2">
+                        <div><strong>Thương hiệu:</strong> {{ it.brand }}</div>
+                        <div><strong>CPU:</strong> {{ it.cpu }}</div>
+                        <div><strong>RAM:</strong> {{ it.ram_gb }}GB</div>
+                        <div class="text-primary fw-bold mt-2">{{ "{:,.0f}".format(it.price) }} VND</div>
+                    </div>
+                    <div class="mt-auto">
+                        <div class="d-flex gap-2">
+                            <form method="post" action="{{ url_for('remove_favorite', laptop_id=it.id) }}" 
+                                  onsubmit="return confirm('Bỏ yêu thích laptop này?')" class="flex-fill">
+                                <button class="btn btn-outline-danger w-100">Bỏ yêu thích</button>
+                            </form>
+                            <a class="btn btn-primary" href="{{ url_for('laptop_detail', laptop_id=it.id) }}">Chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="card app-card">
+            <div class="card-body">
+                <h5 class="text-muted mb-3">Chưa có laptop yêu thích</h5>
+                <p class="text-muted mb-4">Hãy khám phá và thêm laptop vào danh sách yêu thích!</p>
+                <a href="{{ url_for('laptops') }}" class="btn btn-primary btn-lg">
+                    Khám phá laptop
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-{% if not items %}
-<div class="alert alert-info mt-3">Chưa có laptop yêu thích.</div>
-{% endif %}
 {% endblock %}
