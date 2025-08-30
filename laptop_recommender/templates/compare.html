@@ -349,6 +349,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Sắp xếp phần pin theo thời gian pin tốt hơn
     sortBatteryComparison();
+    
+    // Load dữ liệu ban đầu
+    loadCPUData('plugged');
+    loadGPUData('plugged');
 });
 
 // Sắp xếp phần pin theo thời gian pin tốt hơn
@@ -377,7 +381,11 @@ function sortBatteryComparison() {
     batteryItems.forEach(item => {
         container.appendChild(item);
     });
+    
+    console.log('Battery comparison sorted with icons!');
 }
+
+
 
 function sortBattery(direction) {
     console.log('Sắp xếp pin theo:', direction);
@@ -545,5 +553,17 @@ function updateGPUCharts(data) {
         `;
     });
 }
+
+// Đảm bảo icon xuất hiện ngay khi trang load
+window.addEventListener('load', function() {
+    console.log('Page loaded, sorting battery comparison...');
+    sortBatteryComparison();
+});
+
+// Fallback: thử lại sau 500ms nếu chưa có
+setTimeout(function() {
+    console.log('Fallback: sorting battery comparison...');
+    sortBatteryComparison();
+}, 500);
 </script>
 {% endblock %}

@@ -44,6 +44,14 @@ body.app-gradient {
   color: var(--text-strong);
   line-height: 1.6;
   font-size: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure main content doesn't overlap dropdown */
+.main-content {
+  position: relative;
+  z-index: 1;
 }
 
 /* Typography */
@@ -78,6 +86,8 @@ h6 { font-size: 1rem; }
   border-bottom: 1px solid var(--border) !important;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
+  z-index: 999999999999 !important;
+  position: relative !important;
 }
 
 .navbar.app-navbar.scrolled {
@@ -497,6 +507,113 @@ h6 { font-size: 1rem; }
 
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out;
+}
+
+/* Quick Guide Section */
+.quick-guide-section {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.02) 0%, rgba(240, 147, 251, 0.02) 100%);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.guide-item {
+  padding: 1rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border);
+}
+
+.guide-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(240, 147, 251, 0.05) 100%);
+}
+
+.guide-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.guide-text {
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.guide-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Dropdown Menu - Ensure it's on top layer */
+.dropdown-menu {
+  z-index: 999999999999 !important;
+  position: fixed !important;
+  background: white !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--shadow-xl) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  margin-top: 0.5rem !important;
+  min-width: 200px !important;
+  padding: 0.5rem 0 !important;
+  top: auto !important;
+  left: auto !important;
+}
+
+.dropdown-menu.show {
+  display: block !important;
+  animation: fadeIn 0.2s ease-out !important;
+}
+
+.dropdown-item {
+  padding: 0.75rem 1rem !important;
+  color: var(--text-strong) !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  border: none !important;
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(240, 147, 251, 0.05) 100%) !important;
+  color: var(--primary-600) !important;
+  transform: translateX(4px) !important;
+}
+
+.dropdown-item:active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(240, 147, 251, 0.1) 100%) !important;
+}
+
+.dropdown-divider {
+  border-top: 1px solid var(--border-light) !important;
+  margin: 0.5rem 0 !important;
+}
+
+/* User dropdown specific styling */
+.navbar .dropdown-menu {
+  right: 0 !important;
+  left: auto !important;
+  transform-origin: top right !important;
+}
+
+/* Ensure navbar dropdown is above all other elements */
+.navbar .dropdown {
+  position: relative !important;
+  z-index: 999999999999 !important;
+}
+
+.navbar .dropdown-toggle {
+  position: relative !important;
+  z-index: 999999999999 !important;
+}
+
+.navbar .dropdown-toggle::after {
+  margin-left: 0.5rem !important;
+  vertical-align: middle !important;
 }
 
 .animate-fade-in {
